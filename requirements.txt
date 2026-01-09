@@ -1,0 +1,4 @@
+# Requirements for development and testing
+beautifulsoup4==4.12.2
+aiohttp==3.9.1
+homeassistant>=2023.1.0

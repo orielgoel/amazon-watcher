@@ -1,0 +1,11 @@
+{
+  "domain": "amazon_watcher",
+  "name": "Amazon Israel Shipping Watcher",
+  "documentation": "https://github.com/yourusername/amazon-watcher",
+  "issue_tracker": "https://github.com/yourusername/amazon-watcher/issues",
+  "version": "1.0.0",
+  "requirements": ["beautifulsoup4==4.12.2", "aiohttp==3.9.1"],
+  "codeowners": ["@yourusername"],
+  "config_flow": true,
+  "iot_class": "cloud_polling"
+}

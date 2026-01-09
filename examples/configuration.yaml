@@ -1,0 +1,152 @@
+# Example Home Assistant Configuration
+# This file shows how to use the Amazon Israel Shipping Watcher integration
+
+# The integration is configured through the UI (Configuration Flow)
+# After adding it through Settings → Integrations, you can use the sensors
+
+# Example Automation 1: Notify when free shipping is available
+automation:
+  - alias: "Notify Free Shipping to Israel"
+    description: "Send notification when a product gets free shipping to Israel"
+    trigger:
+      - platform: state
+        entity_id: sensor.amazon_product_1
+        to: "Yes"
+    condition:
+      - condition: template
+        value_template: "{{ trigger.from_state.state != 'Yes' }}"
+    action:
+      - service: notify.notify
+        data:
+          title: "🎉 Free Shipping Available!"
+          message: >
+            {{ state_attr('sensor.amazon_product_1', 'product_title') }}
+            now has FREE shipping to Israel!
+            Current price: {{ state_attr('sensor.amazon_product_1', 'price') }}
+
+  # Example Automation 2: Daily summary of all products
+  - alias: "Daily Amazon Shipping Summary"
+    description: "Send daily summary of all monitored products"
+    trigger:
+      - platform: time
+        at: "09:00:00"
+    action:
+      - service: notify.notify
+        data:
+          title: "📦 Amazon Shipping Summary"
+          message: >
+            {% set ns = namespace(free=[], no_free=[]) %}
+            {% for state in states.sensor | selectattr('entity_id', 'match', 'sensor.amazon_product_.*') %}
+              {% if state.state == 'Yes' %}
+                {% set ns.free = ns.free + [state.attributes.product_title] %}
+              {% elif state.state == 'No' %}
+                {% set ns.no_free = ns.no_free + [state.attributes.product_title] %}
+              {% endif %}
+            {% endfor %}
+            
+            Free Shipping ({{ ns.free|length }}):
+            {% for item in ns.free %}
+            - {{ item }}
+            {% endfor %}
+            
+            No Free Shipping ({{ ns.no_free|length }}):
+            {% for item in ns.no_free %}
+            - {{ item }}
+            {% endfor %}
+
+  # Example Automation 3: Price drop alert
+  - alias: "Amazon Price Drop Alert"
+    description: "Alert when product price changes"
+    trigger:
+      - platform: state
+        entity_id: sensor.amazon_product_1
+        attribute: price
+    condition:
+      - condition: template
+        value_template: >
+          {{ trigger.to_state.attributes.price != trigger.from_state.attributes.price }}
+    action:
+      - service: notify.notify
+        data:
+          title: "💰 Price Change Detected"
+          message: >
+            {{ state_attr('sensor.amazon_product_1', 'product_title') }}
+            Price changed from {{ trigger.from_state.attributes.price }}
+            to {{ trigger.to_state.attributes.price }}
+
+# Example Lovelace Card Configuration
+# Add this to your dashboard configuration
+
+# Card 1: Simple entities card
+# type: entities
+# title: Amazon Products - Israel Shipping
+# entities:
+#   - entity: sensor.amazon_product_1
+#     name: Product 1
+#     secondary_info: last-updated
+#   - entity: sensor.amazon_product_2
+#     name: Product 2
+#     secondary_info: last-updated
+#   - entity: sensor.amazon_product_3
+#     name: Product 3
+#     secondary_info: last-updated
+
+# Card 2: Detailed card with attributes
+# type: custom:auto-entities
+# card:
+#   type: entities
+#   title: Amazon Products with Free Shipping
+# filter:
+#   include:
+#     - entity_id: sensor.amazon_product_*
+#       state: "Yes"
+#   exclude: []
+# show_empty: true
+
+# Card 3: Markdown card with details
+# type: markdown
+# content: |
+#   {% for state in states.sensor | selectattr('entity_id', 'match', 'sensor.amazon_product_.*') %}
+#   ### {{ state.attributes.product_title }}
+#   - **Price**: {{ state.attributes.price }}
+#   - **Free Shipping to Israel**: {{ state.state }}
+#   - **Status**: {{ state.attributes.shipping_status }}
+#   - **[View Product]({{ state.attributes.url }})**
+#   ---
+#   {% endfor %}
+
+# Scripts
+script:
+  # Force update all Amazon sensors
+  update_amazon_sensors:
+    alias: "Update All Amazon Sensors"
+    sequence:
+      - service: homeassistant.update_entity
+        target:
+          entity_id: sensor.amazon_product_1
+      - service: homeassistant.update_entity
+        target:
+          entity_id: sensor.amazon_product_2
+      # Add more sensors as needed
+
+# Input Boolean for enabling/disabling notifications
+input_boolean:
+  amazon_notifications:
+    name: Amazon Shipping Notifications
+    icon: mdi:bell
+
+# Conditional notification based on input_boolean
+automation:
+  - alias: "Conditional Amazon Notification"
+    trigger:
+      - platform: state
+        entity_id: sensor.amazon_product_1
+        to: "Yes"
+    condition:
+      - condition: state
+        entity_id: input_boolean.amazon_notifications
+        state: "on"
+    action:
+      - service: notify.notify
+        data:
+          message: "Free shipping available!"

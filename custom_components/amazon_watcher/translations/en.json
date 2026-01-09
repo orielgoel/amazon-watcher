@@ -1,0 +1,21 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure Amazon Israel Shipping Watcher",
+        "description": "Enter Amazon product URLs (one per line) to monitor for free shipping to Israel.\n\nExample:\nhttps://www.amazon.com/dp/B08N5WRWNW\nhttps://www.amazon.com/dp/B07XJ8C8F5",
+        "data": {
+          "urls": "Amazon Product URLs",
+          "scan_interval": "Scan Interval (minutes)"
+        }
+      }
+    },
+    "error": {
+      "invalid_urls": "One or more URLs are not valid Amazon URLs",
+      "unknown": "Unexpected error occurred"
+    },
+    "abort": {
+      "already_configured": "This set of URLs is already configured"
+    }
+  }
+}
