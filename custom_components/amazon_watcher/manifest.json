@@ -3,7 +3,7 @@
   "name": "Amazon Israel Shipping Watcher",
   "documentation": "https://github.com/orielgoel/amazon-watcher",
   "issue_tracker": "https://github.com/orielgoel/amazon-watcher/issues",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "requirements": ["beautifulsoup4==4.12.2"],
   "codeowners": ["@orielgoel"],
   "config_flow": true,

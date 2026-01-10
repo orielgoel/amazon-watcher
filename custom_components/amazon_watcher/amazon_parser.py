@@ -124,25 +124,16 @@ class AmazonParser:
                 if text:
                     return text
 
-        # Check for "FREE Shipping" text anywhere in the page
-        free_shipping_patterns = [
-            "FREE Shipping",
-            "Free shipping",
-            "FREE delivery",
-            "Free delivery",
-        ]
-
-        for pattern in free_shipping_patterns:
-            if pattern in str(soup):
-                return f"Found: {pattern}"
-
         return "No shipping information found"
 
     def _check_israel_free_shipping(self, shipping_info: str, html: str) -> bool:
         """Check if product has free shipping to Israel."""
         # Convert to lowercase for case-insensitive matching
         shipping_lower = shipping_info.lower()
-        html_lower = html.lower()
+        
+        # If shipping info says "No shipping information found", return False (or Unknown)
+        if "no shipping information found" in shipping_lower:
+            return False
 
         # Keywords indicating free shipping
         free_keywords = [
@@ -150,34 +141,36 @@ class AmazonParser:
             "free delivery",
             "free international shipping",
             "ships free",
+            "qualified for free shipping",
         ]
 
-        # Check if any free shipping keyword is present
+        # Check if any free shipping keyword is present IN THE SHIPPING INFO ONLY
+        # We do NOT check the full HTML anymore to avoid false positives from footers/ads
         has_free = any(keyword in shipping_lower for keyword in free_keywords)
-
-        if not has_free:
-            # Also check the full HTML
-            has_free = any(keyword in html_lower for keyword in free_keywords)
 
         if not has_free:
             return False
 
         # Now check if it mentions Israel or international shipping
+        # OR if we are confident because the shipping info block itself was extracted correctly
         israel_keywords = ["israel", "international"]
 
-        # Check if shipping info or nearby context mentions Israel/international
+        # Check if shipping info mentions Israel/international
         israel_mentioned = any(
             keyword in shipping_lower for keyword in israel_keywords
-        ) or any(keyword in html_lower for keyword in israel_keywords)
+        )
+        
+        # Also check if "Deliver to Israel" is in the page header to confirm context,
+        # but only if we found "Free Shipping" in the specific delivery block.
+        # This helps confirm we are viewing the page as an Israeli user.
+        location_confirmed = "israel" in html.lower()
 
-        # If we found free shipping and either Israel is mentioned or it's international
         if israel_mentioned:
             return True
-
-        # If free shipping is mentioned but we're not sure about Israel,
-        # we'll be conservative and return False (can be refined)
-        # However, if "international" is mentioned anywhere with free shipping, return True
-        if "international" in html_lower and has_free:
+            
+        # If we found "Free Shipping" in the delivery block, and the page mentions Israel anywhere
+        # (likely in the "Deliver to" location), it's highly likely to be free shipping to Israel.
+        if has_free and location_confirmed:
             return True
 
         return False
