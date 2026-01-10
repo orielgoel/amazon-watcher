@@ -10,7 +10,7 @@ from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import selector
+import homeassistant.helpers.config_validation as cv
 
 from .const import (
     DOMAIN,
@@ -83,22 +83,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         data_schema = vol.Schema(
             {
-                vol.Required(CONF_URLS): selector.TextSelector(
-                    selector.TextSelectorConfig(
-                        multiline=True,
-                        multiple=False,
-                    ),
-                ),
+                vol.Required(CONF_URLS): str,
                 vol.Optional(
                     CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
-                ): selector.NumberSelector(
-                    selector.NumberSelectorConfig(
-                        min=5,
-                        max=1440,
-                        mode=selector.NumberSelectorMode.BOX,
-                        unit_of_measurement="minutes",
-                    ),
-                ),
+                ): int,
             }
         )
 
