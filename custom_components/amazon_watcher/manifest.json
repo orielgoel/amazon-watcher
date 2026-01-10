@@ -4,7 +4,7 @@
   "documentation": "https://github.com/orielgoel/amazon-watcher",
   "issue_tracker": "https://github.com/orielgoel/amazon-watcher/issues",
   "version": "1.0.1",
-  "requirements": ["beautifulsoup4==4.12.2", "aiohttp==3.9.1"],
+  "requirements": ["beautifulsoup4==4.12.2"],
   "codeowners": ["@orielgoel"],
   "config_flow": true,
   "iot_class": "cloud_polling",
