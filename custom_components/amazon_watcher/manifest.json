@@ -1,12 +1,16 @@
 {
   "domain": "amazon_watcher",
   "name": "Amazon Israel Shipping Watcher",
-  "documentation": "https://github.com/orielgoel/amazon-watcher",
-  "issue_tracker": "https://github.com/orielgoel/amazon-watcher/issues",
-  "version": "1.0.2",
-  "requirements": ["beautifulsoup4==4.12.2"],
-  "codeowners": ["@orielgoel"],
+  "codeowners": [
+    "@orielgoel"
+  ],
   "config_flow": true,
+  "documentation": "https://github.com/orielgoel/amazon-watcher",
+  "integration_type": "service",
   "iot_class": "cloud_polling",
-  "integration_type": "service"
+  "issue_tracker": "https://github.com/orielgoel/amazon-watcher/issues",
+  "requirements": [
+    "beautifulsoup4==4.12.2"
+  ],
+  "version": "1.0.2"
 }
