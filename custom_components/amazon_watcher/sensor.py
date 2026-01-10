@@ -65,6 +65,11 @@ class AmazonShippingSensor(SensorEntity):
     """Representation of an Amazon Shipping Sensor."""
 
     _attr_icon = "mdi:package-variant-closed"
+    
+    # Explicitly disable numeric features to prevent type errors
+    _attr_device_class = None
+    _attr_state_class = None
+    _attr_native_unit_of_measurement = None
 
     def __init__(
         self,
