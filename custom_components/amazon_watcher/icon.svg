@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="256" height="256" rx="32" fill="#FF9900"/>
+  
+  <!-- Amazon-style smile/arrow -->
+  <path d="M 70 180 Q 128 210 186 180" 
+        stroke="#232F3E" 
+        stroke-width="12" 
+        fill="none" 
+        stroke-linecap="round"/>
+  
+  <!-- Arrow tip at the end of smile -->
+  <path d="M 186 180 L 176 172 M 186 180 L 178 188" 
+        stroke="#232F3E" 
+        stroke-width="12" 
+        stroke-linecap="round"
+        fill="none"/>
+  
+  <!-- Box/Package icon on top -->
+  <rect x="88" y="60" width="80" height="80" 
+        fill="none" 
+        stroke="#232F3E" 
+        stroke-width="10"
+        rx="4"/>
+  
+  <!-- Box tape/cross -->
+  <line x1="128" y1="60" x2="128" y2="140" 
+        stroke="#232F3E" 
+        stroke-width="10"/>
+  <line x1="88" y1="100" x2="168" y2="100" 
+        stroke="#232F3E" 
+        stroke-width="10"/>
+  
+  <!-- Israel flag hint - small star of David in corner -->
+  <g transform="translate(200, 40) scale(0.4)">
+    <path d="M 0,-20 L 5.88,-6.18 L 20,0 L 5.88,6.18 L 0,20 L -5.88,6.18 L -20,0 L -5.88,-6.18 Z" 
+          fill="#0038B8"
+          stroke="#0038B8"
+          stroke-width="2"/>
+  </g>
+</svg>
