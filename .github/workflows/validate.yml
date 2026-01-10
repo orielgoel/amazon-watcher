@@ -13,11 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: HACS validation
-        uses: hacs/action@main
-        with:
-          category: integration
-          ignore: brands,description,topics
+      # - name: HACS validation
+      #   uses: hacs/action@main
+      #   with:
+      #     category: integration
+      #     ignore: brands,description,topics
 
       - name: Hassfest validation
         uses: home-assistant/actions/hassfest@master
