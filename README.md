@@ -74,7 +74,7 @@ automation:
 
 ## Support
 
-For issues, feature requests, or contributions, please visit the [GitHub repository](https://github.com/yourusername/amazon-watcher).
+For issues, feature requests, or contributions, please visit the [GitHub repository](https://github.com/orielgoel/amazon-watcher).
 
 ## License
 

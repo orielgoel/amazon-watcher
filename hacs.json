@@ -1,8 +1,5 @@
 {
   "name": "Amazon Israel Shipping Watcher",
-  "content_in_root": false,
-  "filename": "amazon_watcher",
   "render_readme": true,
-  "domains": ["sensor"],
   "homeassistant": "2023.1.0"
 }

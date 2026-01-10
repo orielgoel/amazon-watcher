@@ -55,7 +55,7 @@ Be respectful, inclusive, and constructive in all interactions.
 
 1. Clone your fork:
 ```bash
-git clone https://github.com/yourusername/amazon-watcher.git
+git clone https://github.com/orielgoel/amazon-watcher.git
 cd amazon-watcher
 ```
 

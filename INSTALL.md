@@ -13,7 +13,7 @@
    - Go to HACS → Integrations
    - Click the three dots (⋮) in the top right
    - Select "Custom repositories"
-   - Add this repository URL: `https://github.com/yourusername/amazon-watcher`
+   - Add this repository URL: `https://github.com/orielgoel/amazon-watcher`
    - Category: Integration
    - Click "Add"
 
@@ -56,7 +56,7 @@
    cd /config  # or your Home Assistant config directory
    mkdir -p custom_components
    cd custom_components
-   git clone https://github.com/yourusername/amazon-watcher.git
+   git clone https://github.com/orielgoel/amazon-watcher.git
    mv amazon-watcher/custom_components/amazon_watcher .
    rm -rf amazon-watcher
    ```
