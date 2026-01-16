@@ -61,31 +61,15 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the initial step - scan interval."""
-        if user_input is not None:
-            self.scan_interval = user_input.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
-            return await self.async_step_product()
-
-        data_schema = vol.Schema(
-            {
-                vol.Optional(
-                    CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
-                ): int,
-            }
-        )
-
-        return self.async_show_form(
-            step_id="user",
-            data_schema=data_schema,
-        )
-
-    async def async_step_product(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """Handle adding a product."""
+        """Handle the configuration step with all fields."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
+            # Get scan interval (only set it if not already set, or update it)
+            scan_interval_input = user_input.get(CONF_SCAN_INTERVAL)
+            if scan_interval_input is not None:
+                self.scan_interval = scan_interval_input
+            
             url = user_input.get(CONF_PRODUCT_URL, "").strip()
             custom_name = user_input.get(CONF_PRODUCT_NAME, "").strip() or None
             add_another = user_input.get("add_another", False)
@@ -106,7 +90,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             # If no errors and user wants to add another, show form again
             if not errors and add_another:
-                return await self.async_step_product()
+                # Clear the URL and name fields for next product, keep scan interval
+                return await self.async_step_user()
             
             # If no errors and user doesn't want to add another, finish
             if not errors:
@@ -121,9 +106,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 # Allow them to finish with existing products
                 return await self._async_create_entry()
 
-        # Show form
+        # Show form with all fields
         data_schema = vol.Schema(
             {
+                vol.Optional(
+                    CONF_SCAN_INTERVAL, default=self.scan_interval
+                ): int,
                 vol.Required(CONF_PRODUCT_URL): str,
                 vol.Optional(CONF_PRODUCT_NAME): str,
                 vol.Optional("add_another", default=False): bool,
@@ -131,7 +119,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
         return self.async_show_form(
-            step_id="product",
+            step_id="user",
             data_schema=data_schema,
             errors=errors,
             description_placeholders={

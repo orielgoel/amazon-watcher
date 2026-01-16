@@ -3,15 +3,9 @@
     "step": {
       "user": {
         "title": "Configure Amazon Israel Shipping Watcher",
-        "description": "Set the scan interval for monitoring Amazon products for free shipping to Israel.",
+        "description": "Configure the scan interval and add Amazon products to monitor for free shipping to Israel.\n\nProducts added so far: {product_count}",
         "data": {
-          "scan_interval": "Scan Interval (minutes)"
-        }
-      },
-      "product": {
-        "title": "Add Product",
-        "description": "Enter the Amazon product URL and optionally a custom name for this product.\n\nProducts added so far: {product_count}",
-        "data": {
+          "scan_interval": "Scan Interval (minutes)",
           "product_url": "Amazon Product URL",
           "product_name": "Custom Name (optional)",
           "add_another": "Add another product"
