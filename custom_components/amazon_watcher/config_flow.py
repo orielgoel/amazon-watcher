@@ -65,7 +65,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            # Get scan interval (only set it if not already set, or update it)
+            # Get scan interval
             scan_interval_input = user_input.get(CONF_SCAN_INTERVAL)
             if scan_interval_input is not None:
                 self.scan_interval = scan_interval_input
@@ -74,7 +74,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             custom_name = user_input.get(CONF_PRODUCT_NAME, "").strip() or None
             add_another = user_input.get("add_another", False)
 
-            # If URL is provided, validate and add it
+            # Validate and add product if URL is provided
             if url:
                 try:
                     validate_product_url(url)
@@ -88,35 +88,47 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         product["name"] = custom_name
                     self.products.append(product)
 
-            # If no errors and user wants to add another, show form again
+            # If user wants to add another product and there are no errors
             if not errors and add_another:
-                # Clear the URL and name fields for next product, keep scan interval
+                # Show form again with cleared URL/name fields, keeping scan interval
                 return await self.async_step_user()
             
-            # If no errors and user doesn't want to add another, finish
-            if not errors:
+            # If user doesn't want to add another, finish (if we have at least one product)
+            if not add_another:
                 if not self.products:
-                    errors["base"] = "no_products"
+                    # No products added yet - require at least one
+                    if not url:
+                        errors["base"] = "no_products"
+                    # If there was a URL error, it's already in errors
                 else:
+                    # We have products, finish configuration
                     return await self._async_create_entry()
-            
-            # If user doesn't want to add another and we have products, allow finishing
-            if not add_another and self.products and errors:
-                # User wants to finish but current input has error
-                # Allow them to finish with existing products
-                return await self._async_create_entry()
 
         # Show form with all fields
-        data_schema = vol.Schema(
-            {
-                vol.Optional(
-                    CONF_SCAN_INTERVAL, default=self.scan_interval
-                ): int,
-                vol.Required(CONF_PRODUCT_URL): str,
-                vol.Optional(CONF_PRODUCT_NAME): str,
-                vol.Optional("add_another", default=False): bool,
-            }
-        )
+        # Make URL required only if no products have been added yet
+        if not self.products:
+            data_schema = vol.Schema(
+                {
+                    vol.Optional(
+                        CONF_SCAN_INTERVAL, default=self.scan_interval
+                    ): int,
+                    vol.Required(CONF_PRODUCT_URL): str,
+                    vol.Optional(CONF_PRODUCT_NAME): str,
+                    vol.Optional("add_another", default=False): bool,
+                }
+            )
+        else:
+            # If products already added, URL is optional (for adding more)
+            data_schema = vol.Schema(
+                {
+                    vol.Optional(
+                        CONF_SCAN_INTERVAL, default=self.scan_interval
+                    ): int,
+                    vol.Optional(CONF_PRODUCT_URL): str,
+                    vol.Optional(CONF_PRODUCT_NAME): str,
+                    vol.Optional("add_another", default=False): bool,
+                }
+            )
 
         return self.async_show_form(
             step_id="user",
