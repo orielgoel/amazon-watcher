@@ -17,6 +17,7 @@ from homeassistant.util import Throttle
 from .const import (
     DOMAIN,
     CONF_URLS,
+    CONF_PRODUCTS,
     CONF_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
     ATTR_PRODUCT_TITLE,
@@ -39,20 +40,35 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Amazon Watcher sensors from a config entry."""
-    urls = config_entry.data[CONF_URLS].strip().split("\n")
-    urls = [url.strip() for url in urls if url.strip()]
+    # Try to get products from new format, fall back to old format for backward compatibility
+    if CONF_PRODUCTS in config_entry.data:
+        products = config_entry.data[CONF_PRODUCTS]
+    else:
+        # Backward compatibility: parse old format
+        urls = config_entry.data[CONF_URLS].strip().split("\n")
+        urls = [url.strip() for url in urls if url.strip()]
+        products = [{"url": url} for url in urls]
+    
     scan_interval = config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
 
     session = async_get_clientsession(hass)
     parser = AmazonParser(session)
 
     sensors = []
-    for idx, url in enumerate(urls, start=1):
+    for idx, product in enumerate(products, start=1):
+        url = product["url"]
+        # Use custom name if provided, otherwise use default
+        custom_name = product.get("name")
+        if custom_name:
+            name = custom_name
+        else:
+            name = f"Amazon Product {idx}"
+        
         sensors.append(
             AmazonShippingSensor(
                 parser=parser,
                 url=url,
-                name=f"Amazon Product {idx}",
+                name=name,
                 unique_id=f"{config_entry.entry_id}_{idx}",
                 scan_interval=scan_interval,
             )

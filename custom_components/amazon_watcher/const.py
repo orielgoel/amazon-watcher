@@ -2,6 +2,7 @@
 
 DOMAIN = "amazon_watcher"
 CONF_URLS = "urls"
+CONF_PRODUCTS = "products"  # List of dicts with 'url' and optional 'name'
 CONF_SCAN_INTERVAL = "scan_interval"
 
 DEFAULT_SCAN_INTERVAL = 60  # minutes

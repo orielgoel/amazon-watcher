@@ -3,9 +3,9 @@
     "step": {
       "user": {
         "title": "Configure Amazon Israel Shipping Watcher",
-        "description": "Enter Amazon product URLs (one per line) to monitor for free shipping to Israel.\n\nExample:\n{urls_example}",
+        "description": "Enter Amazon product URLs (one per line) to monitor for free shipping to Israel.\n\nYou can optionally add a custom name by using the format: URL|Custom Name\n\nExample:\n{urls_example}",
         "data": {
-          "urls": "Amazon Product URLs",
+          "urls": "Amazon Product URLs (optional: URL|Custom Name)",
           "scan_interval": "Scan Interval (minutes)"
         }
       }

@@ -15,6 +15,7 @@ import homeassistant.helpers.config_validation as cv
 from .const import (
     DOMAIN,
     CONF_URLS,
+    CONF_PRODUCTS,
     CONF_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
 )
@@ -39,17 +40,40 @@ def validate_amazon_url(url: str) -> bool:
 
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
     """Validate the user input allows us to connect."""
-    urls = data[CONF_URLS].strip().split("\n")
-    urls = [url.strip() for url in urls if url.strip()]
+    urls_input = data[CONF_URLS].strip().split("\n")
+    urls_input = [line.strip() for line in urls_input if line.strip()]
 
-    if not urls:
+    if not urls_input:
         raise InvalidURLs("No URLs provided")
 
-    invalid_urls = [url for url in urls if not validate_amazon_url(url)]
+    products = []
+    invalid_urls = []
+    
+    for line in urls_input:
+        # Support format: "URL|Custom Name" or just "URL"
+        if "|" in line:
+            parts = line.split("|", 1)
+            url = parts[0].strip()
+            custom_name = parts[1].strip() if len(parts) > 1 else None
+        else:
+            url = line.strip()
+            custom_name = None
+        
+        if not validate_amazon_url(url):
+            invalid_urls.append(url)
+        else:
+            product = {"url": url}
+            if custom_name:
+                product["name"] = custom_name
+            products.append(product)
+
     if invalid_urls:
         raise InvalidURLs(f"Invalid Amazon URLs: {', '.join(invalid_urls)}")
 
-    return {"title": f"Amazon Watcher ({len(urls)} products)"}
+    return {
+        "title": f"Amazon Watcher ({len(products)} products)",
+        "products": products
+    }
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -74,12 +98,19 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "unknown"
             else:
                 # Create unique ID based on URLs
-                urls = user_input[CONF_URLS].strip().split("\n")
-                urls = [url.strip() for url in urls if url.strip()]
+                urls = [product["url"] for product in info["products"]]
                 await self.async_set_unique_id("_".join(sorted(urls))[:100])
                 self._abort_if_unique_id_configured()
 
-                return self.async_create_entry(title=info["title"], data=user_input)
+                # Store products in the config entry data
+                entry_data = {
+                    CONF_PRODUCTS: info["products"],
+                    CONF_SCAN_INTERVAL: user_input.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
+                    # Keep CONF_URLS for backward compatibility
+                    CONF_URLS: user_input[CONF_URLS],
+                }
+
+                return self.async_create_entry(title=info["title"], data=entry_data)
 
         data_schema = vol.Schema(
             {
@@ -95,7 +126,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=data_schema,
             errors=errors,
             description_placeholders={
-                "urls_example": "https://www.amazon.com/dp/B08N5WRWNW\nhttps://www.amazon.com/dp/B07XJ8C8F5"
+                "urls_example": "https://www.amazon.com/dp/B08N5WRWNW\nhttps://www.amazon.com/dp/B07XJ8C8F5|My Custom Product Name"
             },
         )
 
